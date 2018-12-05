@@ -813,23 +813,23 @@ func newObject(o *raw.Object) *ObjectAttrs {
 		EventBasedHold:          o.EventBasedHold,
 		TemporaryHold:           o.TemporaryHold,
 		RetentionExpirationTime: convertTime(o.RetentionExpirationTime),
-		ACL:                     toObjectACLRules(o.Acl),
-		Owner:                   owner,
-		ContentEncoding:         o.ContentEncoding,
-		ContentDisposition:      o.ContentDisposition,
-		Size:                    int64(o.Size),
-		MD5:                     md5,
-		CRC32C:                  crc32c,
-		MediaLink:               o.MediaLink,
-		Metadata:                o.Metadata,
-		Generation:              o.Generation,
-		Metageneration:          o.Metageneration,
-		StorageClass:            o.StorageClass,
-		CustomerKeySHA256:       sha256,
-		KMSKeyName:              o.KmsKeyName,
-		Created:                 convertTime(o.TimeCreated),
-		Deleted:                 convertTime(o.TimeDeleted),
-		Updated:                 convertTime(o.Updated),
+		ACL:                toObjectACLRules(o.Acl),
+		Owner:              owner,
+		ContentEncoding:    o.ContentEncoding,
+		ContentDisposition: o.ContentDisposition,
+		Size:               int64(o.Size),
+		MD5:                md5,
+		CRC32C:             crc32c,
+		MediaLink:          o.MediaLink,
+		Metadata:           o.Metadata,
+		Generation:         o.Generation,
+		Metageneration:     o.Metageneration,
+		StorageClass:       o.StorageClass,
+		CustomerKeySHA256:  sha256,
+		KMSKeyName:         o.KmsKeyName,
+		Created:            convertTime(o.TimeCreated),
+		Deleted:            convertTime(o.TimeDeleted),
+		Updated:            convertTime(o.Updated),
 	}
 }
 
@@ -862,10 +862,16 @@ type Query struct {
 	// Optional.
 	Delimiter string
 
+	// Selected fields to return in a response
+	Fields googleapi.Field
+
 	// Prefix is the prefix filter to query objects
 	// whose names begin with this prefix.
 	// Optional.
 	Prefix string
+
+	// Projected ACLs
+	NoProjection bool
 
 	// Versions indicates whether multiple versions of the same
 	// object will be included in the results.

@@ -1024,11 +1024,21 @@ func (it *ObjectIterator) Next() (*ObjectAttrs, error) {
 func (it *ObjectIterator) fetch(pageSize int, pageToken string) (string, error) {
 	req := it.bucket.c.raw.Objects.List(it.bucket.name)
 	setClientHeader(req.Header())
-	req.Projection("full")
+	// NOTE: Modified this from "full" to "noAcl"
+	if it.query.NoProjection != false {
+		req.Projection("noAcl")
+	} else {
+		req.Projection("full")
+	}
 	req.Delimiter(it.query.Delimiter)
 	req.Prefix(it.query.Prefix)
 	req.Versions(it.query.Versions)
 	req.PageToken(pageToken)
+	// NOTE: Modified this from selecting all fields to only req fields.
+	if it.query.Fields != "" {
+		req.Fields(it.query.Fields)
+	}
+	//req.Fields("nextPageToken,items(id)")
 	if it.bucket.userProject != "" {
 		req.UserProject(it.bucket.userProject)
 	}
