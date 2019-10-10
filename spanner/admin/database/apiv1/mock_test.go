@@ -34,6 +34,7 @@ import (
 	iampb "google.golang.org/genproto/googleapis/iam/v1"
 	longrunningpb "google.golang.org/genproto/googleapis/longrunning"
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
+	field_maskpb "google.golang.org/genproto/protobuf/field_mask"
 
 	status "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
@@ -168,6 +169,102 @@ func (s *mockDatabaseAdminServer) TestIamPermissions(ctx context.Context, req *i
 		return nil, s.err
 	}
 	return s.resps[0].(*iampb.TestIamPermissionsResponse), nil
+}
+
+func (s *mockDatabaseAdminServer) CreateBackup(ctx context.Context, req *databasepb.CreateBackupRequest) (*longrunningpb.Operation, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*longrunningpb.Operation), nil
+}
+
+func (s *mockDatabaseAdminServer) GetBackup(ctx context.Context, req *databasepb.GetBackupRequest) (*databasepb.Backup, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*databasepb.Backup), nil
+}
+
+func (s *mockDatabaseAdminServer) UpdateBackup(ctx context.Context, req *databasepb.UpdateBackupRequest) (*databasepb.Backup, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*databasepb.Backup), nil
+}
+
+func (s *mockDatabaseAdminServer) DeleteBackup(ctx context.Context, req *databasepb.DeleteBackupRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*emptypb.Empty), nil
+}
+
+func (s *mockDatabaseAdminServer) ListBackups(ctx context.Context, req *databasepb.ListBackupsRequest) (*databasepb.ListBackupsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*databasepb.ListBackupsResponse), nil
+}
+
+func (s *mockDatabaseAdminServer) RestoreDatabase(ctx context.Context, req *databasepb.RestoreDatabaseRequest) (*longrunningpb.Operation, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*longrunningpb.Operation), nil
+}
+
+func (s *mockDatabaseAdminServer) ListDatabaseOperations(ctx context.Context, req *databasepb.ListDatabaseOperationsRequest) (*databasepb.ListDatabaseOperationsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*databasepb.ListDatabaseOperationsResponse), nil
+}
+
+func (s *mockDatabaseAdminServer) ListBackupOperations(ctx context.Context, req *databasepb.ListBackupOperationsRequest) (*databasepb.ListBackupOperationsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
+	s.reqs = append(s.reqs, req)
+	if s.err != nil {
+		return nil, s.err
+	}
+	return s.resps[0].(*databasepb.ListBackupOperationsResponse), nil
 }
 
 // clientOpt is the option tests should use to connect to the test server.
@@ -787,6 +884,602 @@ func TestDatabaseAdminTestIamPermissionsError(t *testing.T) {
 	}
 
 	resp, err := c.TestIamPermissions(context.Background(), request)
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminCreateBackup(t *testing.T) {
+	var name string = "name3373707"
+	var database string = "database1789464955"
+	var sizeBytes int64 = 1796325715
+	var expectedResponse = &databasepb.Backup{
+		Name:      name,
+		Database:  database,
+		SizeBytes: sizeBytes,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	any, err := ptypes.MarshalAny(expectedResponse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], &longrunningpb.Operation{
+		Name:   "longrunning-test",
+		Done:   true,
+		Result: &longrunningpb.Operation_Response{Response: any},
+	})
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var backupId string = "backupId1355353272"
+	var backup *databasepb.Backup = &databasepb.Backup{}
+	var request = &databasepb.CreateBackupRequest{
+		Parent:   formattedParent,
+		BackupId: backupId,
+		Backup:   backup,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	respLRO, err := c.CreateBackup(context.Background(), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := respLRO.Wait(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminCreateBackupError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], &longrunningpb.Operation{
+		Name: "longrunning-test",
+		Done: true,
+		Result: &longrunningpb.Operation_Error{
+			Error: &status.Status{
+				Code:    int32(errCode),
+				Message: "test error",
+			},
+		},
+	})
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var backupId string = "backupId1355353272"
+	var backup *databasepb.Backup = &databasepb.Backup{}
+	var request = &databasepb.CreateBackupRequest{
+		Parent:   formattedParent,
+		BackupId: backupId,
+		Backup:   backup,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	respLRO, err := c.CreateBackup(context.Background(), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := respLRO.Wait(context.Background())
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminGetBackup(t *testing.T) {
+	var name2 string = "name2-1052831874"
+	var database string = "database1789464955"
+	var sizeBytes int64 = 1796325715
+	var expectedResponse = &databasepb.Backup{
+		Name:      name2,
+		Database:  database,
+		SizeBytes: sizeBytes,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], expectedResponse)
+
+	var formattedName string = fmt.Sprintf("projects/%s/instances/%s/backups/%s", "[PROJECT]", "[INSTANCE]", "[BACKUP]")
+	var request = &databasepb.GetBackupRequest{
+		Name: formattedName,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.GetBackup(context.Background(), request)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminGetBackupError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = gstatus.Error(errCode, "test error")
+
+	var formattedName string = fmt.Sprintf("projects/%s/instances/%s/backups/%s", "[PROJECT]", "[INSTANCE]", "[BACKUP]")
+	var request = &databasepb.GetBackupRequest{
+		Name: formattedName,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.GetBackup(context.Background(), request)
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminUpdateBackup(t *testing.T) {
+	var name string = "name3373707"
+	var database string = "database1789464955"
+	var sizeBytes int64 = 1796325715
+	var expectedResponse = &databasepb.Backup{
+		Name:      name,
+		Database:  database,
+		SizeBytes: sizeBytes,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], expectedResponse)
+
+	var backup *databasepb.Backup = &databasepb.Backup{}
+	var updateMask *field_maskpb.FieldMask = &field_maskpb.FieldMask{}
+	var request = &databasepb.UpdateBackupRequest{
+		Backup:     backup,
+		UpdateMask: updateMask,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.UpdateBackup(context.Background(), request)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminUpdateBackupError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = gstatus.Error(errCode, "test error")
+
+	var backup *databasepb.Backup = &databasepb.Backup{}
+	var updateMask *field_maskpb.FieldMask = &field_maskpb.FieldMask{}
+	var request = &databasepb.UpdateBackupRequest{
+		Backup:     backup,
+		UpdateMask: updateMask,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.UpdateBackup(context.Background(), request)
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminDeleteBackup(t *testing.T) {
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], expectedResponse)
+
+	var formattedName string = fmt.Sprintf("projects/%s/instances/%s/backups/%s", "[PROJECT]", "[INSTANCE]", "[BACKUP]")
+	var request = &databasepb.DeleteBackupRequest{
+		Name: formattedName,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = c.DeleteBackup(context.Background(), request)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+}
+
+func TestDatabaseAdminDeleteBackupError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = gstatus.Error(errCode, "test error")
+
+	var formattedName string = fmt.Sprintf("projects/%s/instances/%s/backups/%s", "[PROJECT]", "[INSTANCE]", "[BACKUP]")
+	var request = &databasepb.DeleteBackupRequest{
+		Name: formattedName,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = c.DeleteBackup(context.Background(), request)
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+}
+func TestDatabaseAdminListBackups(t *testing.T) {
+	var nextPageToken string = ""
+	var backupsElement *databasepb.Backup = &databasepb.Backup{}
+	var backups = []*databasepb.Backup{backupsElement}
+	var expectedResponse = &databasepb.ListBackupsResponse{
+		NextPageToken: nextPageToken,
+		Backups:       backups,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], expectedResponse)
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var filter string = "filter-1274492040"
+	var request = &databasepb.ListBackupsRequest{
+		Parent: formattedParent,
+		Filter: filter,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.ListBackups(context.Background(), request).Next()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	want := (interface{})(expectedResponse.Backups[0])
+	got := (interface{})(resp)
+	var ok bool
+
+	switch want := (want).(type) {
+	case proto.Message:
+		ok = proto.Equal(want, got.(proto.Message))
+	default:
+		ok = want == got
+	}
+	if !ok {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminListBackupsError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = gstatus.Error(errCode, "test error")
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var filter string = "filter-1274492040"
+	var request = &databasepb.ListBackupsRequest{
+		Parent: formattedParent,
+		Filter: filter,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.ListBackups(context.Background(), request).Next()
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminRestoreDatabase(t *testing.T) {
+	var name string = "name3373707"
+	var expectedResponse = &databasepb.Database{
+		Name: name,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	any, err := ptypes.MarshalAny(expectedResponse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], &longrunningpb.Operation{
+		Name:   "longrunning-test",
+		Done:   true,
+		Result: &longrunningpb.Operation_Response{Response: any},
+	})
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var databaseId string = "databaseId816491103"
+	var request = &databasepb.RestoreDatabaseRequest{
+		Parent:     formattedParent,
+		DatabaseId: databaseId,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	respLRO, err := c.RestoreDatabase(context.Background(), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := respLRO.Wait(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminRestoreDatabaseError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], &longrunningpb.Operation{
+		Name: "longrunning-test",
+		Done: true,
+		Result: &longrunningpb.Operation_Error{
+			Error: &status.Status{
+				Code:    int32(errCode),
+				Message: "test error",
+			},
+		},
+	})
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var databaseId string = "databaseId816491103"
+	var request = &databasepb.RestoreDatabaseRequest{
+		Parent:     formattedParent,
+		DatabaseId: databaseId,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	respLRO, err := c.RestoreDatabase(context.Background(), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := respLRO.Wait(context.Background())
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminListDatabaseOperations(t *testing.T) {
+	var nextPageToken string = ""
+	var operationsElement *longrunningpb.Operation = &longrunningpb.Operation{}
+	var operations = []*longrunningpb.Operation{operationsElement}
+	var expectedResponse = &databasepb.ListDatabaseOperationsResponse{
+		NextPageToken: nextPageToken,
+		Operations:    operations,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], expectedResponse)
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var filter string = "filter-1274492040"
+	var request = &databasepb.ListDatabaseOperationsRequest{
+		Parent: formattedParent,
+		Filter: filter,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.ListDatabaseOperations(context.Background(), request).Next()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	want := (interface{})(expectedResponse.Operations[0])
+	got := (interface{})(resp)
+	var ok bool
+
+	switch want := (want).(type) {
+	case proto.Message:
+		ok = proto.Equal(want, got.(proto.Message))
+	default:
+		ok = want == got
+	}
+	if !ok {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminListDatabaseOperationsError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = gstatus.Error(errCode, "test error")
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var filter string = "filter-1274492040"
+	var request = &databasepb.ListDatabaseOperationsRequest{
+		Parent: formattedParent,
+		Filter: filter,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.ListDatabaseOperations(context.Background(), request).Next()
+
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
+		t.Errorf("got error code %q, want %q", c, errCode)
+	}
+	_ = resp
+}
+func TestDatabaseAdminListBackupOperations(t *testing.T) {
+	var nextPageToken string = ""
+	var operationsElement *longrunningpb.Operation = &longrunningpb.Operation{}
+	var operations = []*longrunningpb.Operation{operationsElement}
+	var expectedResponse = &databasepb.ListBackupOperationsResponse{
+		NextPageToken: nextPageToken,
+		Operations:    operations,
+	}
+
+	mockDatabaseAdmin.err = nil
+	mockDatabaseAdmin.reqs = nil
+
+	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], expectedResponse)
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var filter string = "filter-1274492040"
+	var request = &databasepb.ListBackupOperationsRequest{
+		Parent: formattedParent,
+		Filter: filter,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.ListBackupOperations(context.Background(), request).Next()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := request, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
+
+	want := (interface{})(expectedResponse.Operations[0])
+	got := (interface{})(resp)
+	var ok bool
+
+	switch want := (want).(type) {
+	case proto.Message:
+		ok = proto.Equal(want, got.(proto.Message))
+	default:
+		ok = want == got
+	}
+	if !ok {
+		t.Errorf("wrong response %q, want %q)", got, want)
+	}
+}
+
+func TestDatabaseAdminListBackupOperationsError(t *testing.T) {
+	errCode := codes.PermissionDenied
+	mockDatabaseAdmin.err = gstatus.Error(errCode, "test error")
+
+	var formattedParent string = fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	var filter string = "filter-1274492040"
+	var request = &databasepb.ListBackupOperationsRequest{
+		Parent: formattedParent,
+		Filter: filter,
+	}
+
+	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := c.ListBackupOperations(context.Background(), request).Next()
 
 	if st, ok := gstatus.FromError(err); !ok {
 		t.Errorf("got error %v, expected grpc error", err)
