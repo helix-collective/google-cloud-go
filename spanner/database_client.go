@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/googleapis/gax-go/v2"
-	"google.golang.org/api/iterator"
 	"google.golang.org/grpc"
 
 	vkit "cloud.google.com/go/spanner/admin/database/apiv1"
@@ -75,23 +74,13 @@ func (c *DatabaseAdminClient) ListDatabases(ctx context.Context, req *databasepb
 // [response][google.longrunning.Operation.response] field type is
 // [Database][google.spanner.admin.database.v1.Database], if successful.
 func (c *DatabaseAdminClient) CreateDatabase(ctx context.Context, req *databasepb.CreateDatabaseRequest, opts ...gax.CallOption) (*vkit.CreateDatabaseOperation, error) {
-
-	database, err := c.adminClient.CreateDatabase(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return database, nil
+	return c.adminClient.CreateDatabase(ctx, req, opts...)
 }
 
 // GetDatabase gets the state of a Cloud Spanner database.
 func (c *DatabaseAdminClient) GetDatabase(ctx context.Context, req *databasepb.GetDatabaseRequest, opts ...gax.CallOption) (*databasepb.Database, error) {
-	database, err := c.adminClient.GetDatabase(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
+	return c.adminClient.GetDatabase(ctx, req, opts...)
 
-	return database, nil
 }
 
 // UpdateDatabaseDdl updates the schema of a Cloud Spanner database by
@@ -102,13 +91,8 @@ func (c *DatabaseAdminClient) GetDatabase(ctx context.Context, req *databasepb.G
 // [metadata][google.longrunning.Operation.metadata] field type is
 // [UpdateDatabaseDdlMetadata][google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata].  The operation has no response.
 func (c *DatabaseAdminClient) UpdateDatabaseDdl(ctx context.Context, req *databasepb.UpdateDatabaseDdlRequest, opts ...gax.CallOption) (*vkit.UpdateDatabaseDdlOperation, error) {
-	databaseOperation, err := c.adminClient.UpdateDatabaseDdl(ctx, req, opts...)
-	if err != nil {
-		return nil, err
+	return c.adminClient.UpdateDatabaseDdl(ctx, req, opts...)
 	}
-
-	return databaseOperation, nil
-}
 
 // DropDatabase drops (aka deletes) a Cloud Spanner database.
 func (c *DatabaseAdminClient) DropDatabase(ctx context.Context, req *databasepb.DropDatabaseRequest, opts ...gax.CallOption) error {
@@ -119,13 +103,8 @@ func (c *DatabaseAdminClient) DropDatabase(ctx context.Context, req *databasepb.
 // DDL statements. This method does not show pending schema updates, those may
 // be queried using the [Operations][google.longrunning.Operations] API.
 func (c *DatabaseAdminClient) GetDatabaseDdl(ctx context.Context, req *databasepb.GetDatabaseDdlRequest, opts ...gax.CallOption) (*databasepb.GetDatabaseDdlResponse, error) {
-	databaseDdlResponse, err := c.adminClient.GetDatabaseDdl(ctx, req, opts...)
-	if err != nil {
-		return nil, err
+	return c.adminClient.GetDatabaseDdl(ctx, req, opts...)
 	}
-
-	return databaseDdlResponse, nil
-}
 
 // SetIamPolicy sets the access control policy on a database resource.
 // Replaces any existing policy.
@@ -133,12 +112,8 @@ func (c *DatabaseAdminClient) GetDatabaseDdl(ctx context.Context, req *databasep
 // Authorization requires spanner.databases.setIamPolicy
 // permission on [resource][google.iam.v1.SetIamPolicyRequest.resource].
 func (c *DatabaseAdminClient) SetIamPolicy(ctx context.Context, req *iampb.SetIamPolicyRequest, opts ...gax.CallOption) (*iampb.Policy, error) {
-	iamPolicy, err := c.adminClient.SetIamPolicy(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
+	return c.adminClient.SetIamPolicy(ctx, req, opts...)
 
-	return iamPolicy, nil
 }
 
 // GetIamPolicy gets the access control policy for a database resource.
@@ -148,12 +123,7 @@ func (c *DatabaseAdminClient) SetIamPolicy(ctx context.Context, req *iampb.SetIa
 // Authorization requires spanner.databases.getIamPolicy permission on
 // [resource][google.iam.v1.GetIamPolicyRequest.resource].
 func (c *DatabaseAdminClient) GetIamPolicy(ctx context.Context, req *iampb.GetIamPolicyRequest, opts ...gax.CallOption) (*iampb.Policy, error) {
-	iamPolicy, err := c.adminClient.GetIamPolicy(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return iamPolicy, nil
+	return c.adminClient.GetIamPolicy(ctx, req, opts...)
 }
 
 // TestIamPermissions returns permissions that the caller has on the specified database resource.
@@ -163,12 +133,7 @@ func (c *DatabaseAdminClient) GetIamPolicy(ctx context.Context, req *iampb.GetIa
 // spanner.databases.list permission on the containing Cloud
 // Spanner instance. Otherwise returns an empty set of permissions.
 func (c *DatabaseAdminClient) TestIamPermissions(ctx context.Context, req *iampb.TestIamPermissionsRequest, opts ...gax.CallOption) (*iampb.TestIamPermissionsResponse, error) {
-	iamPolicyTest, err := c.adminClient.TestIamPermissions(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return iamPolicyTest, nil
+	return c.adminClient.TestIamPermissions(ctx, req, opts...)
 }
 
 func getInstanceNameFromDatabasePath(databasePath string) (instancePath string) {
@@ -227,44 +192,27 @@ func (c *DatabaseAdminClient) CreateBackup(ctx context.Context, backupID string,
 
 // GetBackup
 func (c *DatabaseAdminClient) GetBackup(ctx context.Context, req *databasepb.GetBackupRequest, opts ...gax.CallOption) (*databasepb.Backup, error) {
-	backup, err := c.adminClient.GetBackup(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return backup, nil
+	return c.adminClient.GetBackup(ctx, req, opts...)
 }
 
 // UpdateBackup
 func (c *DatabaseAdminClient) UpdateBackup(ctx context.Context, req *databasepb.UpdateBackupRequest, opts ...gax.CallOption) (*databasepb.Backup, error) {
-	backup, err := c.adminClient.UpdateBackup(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return backup, nil
+	return c.adminClient.UpdateBackup(ctx, req, opts...)
 }
 
 // DeleteBackup
 func (c *DatabaseAdminClient) DeleteBackup(ctx context.Context, req *databasepb.DeleteBackupRequest, opts ...gax.CallOption) error {
 	return c.adminClient.DeleteBackup(ctx, req, opts...)
-
 }
 
 // ListBackups
 func (c *DatabaseAdminClient) ListBackups(ctx context.Context, req *databasepb.ListBackupsRequest, opts ...gax.CallOption) *vkit.BackupIterator {
 	return c.adminClient.ListBackups(ctx, req, opts...)
-
 }
 
 // RestoreDatabase
 func (c *DatabaseAdminClient) RestoreDatabase(ctx context.Context, req *databasepb.RestoreDatabaseRequest, opts ...gax.CallOption) (*vkit.RestoreDatabaseOperation, error) {
-	backupOperation, err := c.adminClient.RestoreDatabase(ctx, req, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return backupOperation, nil
+	return c.adminClient.RestoreDatabase(ctx, req, opts...)
 }
 
 // ListDatabaseOperations
