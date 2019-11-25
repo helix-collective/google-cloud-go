@@ -92,7 +92,7 @@ func (c *DatabaseAdminClient) GetDatabase(ctx context.Context, req *databasepb.G
 // [UpdateDatabaseDdlMetadata][google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata].  The operation has no response.
 func (c *DatabaseAdminClient) UpdateDatabaseDdl(ctx context.Context, req *databasepb.UpdateDatabaseDdlRequest, opts ...gax.CallOption) (*vkit.UpdateDatabaseDdlOperation, error) {
 	return c.adminClient.UpdateDatabaseDdl(ctx, req, opts...)
-	}
+}
 
 // DropDatabase drops (aka deletes) a Cloud Spanner database.
 func (c *DatabaseAdminClient) DropDatabase(ctx context.Context, req *databasepb.DropDatabaseRequest, opts ...gax.CallOption) error {
@@ -104,7 +104,7 @@ func (c *DatabaseAdminClient) DropDatabase(ctx context.Context, req *databasepb.
 // be queried using the [Operations][google.longrunning.Operations] API.
 func (c *DatabaseAdminClient) GetDatabaseDdl(ctx context.Context, req *databasepb.GetDatabaseDdlRequest, opts ...gax.CallOption) (*databasepb.GetDatabaseDdlResponse, error) {
 	return c.adminClient.GetDatabaseDdl(ctx, req, opts...)
-	}
+}
 
 // SetIamPolicy sets the access control policy on a database resource.
 // Replaces any existing policy.
@@ -181,13 +181,8 @@ func (c *DatabaseAdminClient) CreateBackup(ctx context.Context, backupID string,
 		},
 	}
 
-	resp, backupErr := c.adminClient.CreateBackup(ctx, req)
-	if backupErr != nil {
+	return c.adminClient.CreateBackup(ctx, req)
 
-		return nil, backupErr
-	}
-
-	return resp, nil
 }
 
 // GetBackup
