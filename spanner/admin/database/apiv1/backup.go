@@ -34,14 +34,7 @@ import (
 // created. This must be the same instance that contains the database the
 // backup will be created from. The backup will be stored in the
 // location(s) specified in the instance configuration of this
-// instance. Values are of the form
-// `projects/<project>/instances/<instance>` .
-// backup_id: str : The ID/name of the backup
-// database_path: str : The database URI.
-// expire_time: time: The timestamp after which the backup is eligible for
-// deletion. The time can have microsecond granularity and must be at
-// least 6 hours and at most 366 days from the time the CreateBackup
-// request is processed.
+// instance. 
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, databasePath string, expireTime time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
 	if err := validDatabaseName(databasePath); err != nil {
