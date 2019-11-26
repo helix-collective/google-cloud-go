@@ -41,7 +41,7 @@ func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID stri
 		return nil, err
 	}
 	expireTimepb := timestampProto(expireTime)
-	// create request from parameters
+	// Create request from parameters.
 	req := &databasepb.CreateBackupRequest{
 		Parent:   getInstanceNameFromDatabasePath(databasePath),
 		BackupId: backupID,
@@ -65,8 +65,8 @@ func timestampProto(t time.Time) *pbt.Timestamp {
 var (
 	validDBPattern = regexp.MustCompile("^projects/[^/]+/instances/[^/]+/databases/[^/]+$")
 )
-//validDatabaseName uses validDBPattern to validate that the database name
-//  conforms to the required pattern
+// validDatabaseName uses validDBPattern to validate that the database name
+//  conforms to the required pattern.
 func validDatabaseName(db string) error {
 	if matched := validDBPattern.MatchString(db); !matched {
 		return fmt.Errorf("database name %q should conform to pattern %q",
@@ -76,8 +76,6 @@ func validDatabaseName(db string) error {
 }
 
 func getInstanceNameFromDatabasePath(databasePath string) (instancePath string) {
-	//Assumed that the input to this has been validated.
-	// module uses validDatabaseName() to validate the database name.
 	pathParts := strings.Split(databasePath, "/")
 	projectsLabel := pathParts[0]
 	projectName := pathParts[1]
