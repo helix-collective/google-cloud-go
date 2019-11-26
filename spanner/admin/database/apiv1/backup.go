@@ -28,9 +28,6 @@ import (
 	
 )
 
-
-
-
 // CreateNewBackup creates a new admin client to connect to a database,
 // and creates a backup called backupID with expiry time of expireTime
 // Required. The name of the instance in which the backup will be
@@ -46,13 +43,11 @@ import (
 // least 6 hours and at most 366 days from the time the CreateBackup
 // request is processed.
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, databasePath string, expireTime time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
-
 	// Validate database path.
 	if err := validDatabaseName(databasePath); err != nil {
 		return nil, err
 	}
 	expireTimepb := timestampProto(expireTime)
-
 	// create request from parameters
 	req := &databasepb.CreateBackupRequest{
 		Parent:   getInstanceNameFromDatabasePath(databasePath),
@@ -62,9 +57,7 @@ func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID stri
 			ExpireTime: expireTimepb,
 		},
 	}
-
 	return c.CreateBackup(ctx, req)
-
 }
 
 // timestampProto takes a time.Time and converts it into pbt.Timestamp for
@@ -97,7 +90,5 @@ func getInstanceNameFromDatabasePath(databasePath string) (instancePath string) 
 	projectName := pathParts[1]
 	instanceLabel := pathParts[2]
 	instanceName := pathParts[3]
-
 	return fmt.Sprintf("%s/%s/%s/%s", projectsLabel, projectName, instanceLabel, instanceName)
-
 }
