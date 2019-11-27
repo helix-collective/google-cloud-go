@@ -44,7 +44,7 @@ func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID stri
 	expireTimepb := timestampProto(expireTime)
 	// Create request from parameters.
 	req := &databasepb.CreateBackupRequest{
-		Parent:   DatabaseAdminInstancePath(project, instance),
+		Parent:   fmt.Sprintf("projects/%s/instances/%s", project, instance),
 		BackupId: backupID,
 		Backup: &databasepb.Backup{
 			Database:   databasePath,
