@@ -18,14 +18,13 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/googleapis/gax-go/v2"
 	"regexp"
-	"strings"
 	"time"
 
-	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
+	"github.com/googleapis/gax-go/v2"
+
 	pbt "github.com/golang/protobuf/ptypes/timestamp"
-	
+	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 )
 
 // CreateNewBackup creates a new admin client to connect to a database,
@@ -34,16 +33,17 @@ import (
 // created. This must be the same instance that contains the database the
 // backup will be created from. The backup will be stored in the
 // location(s) specified in the instance configuration of this
-// instance. 
+// instance.
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, databasePath string, expireTime time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
-	if err := validDatabaseName(databasePath); err != nil {
+	project, instance, _, err := validDatabaseName(databasePath)
+	if err != nil {
 		return nil, err
 	}
 	expireTimepb := timestampProto(expireTime)
 	// Create request from parameters.
 	req := &databasepb.CreateBackupRequest{
-		Parent:   getInstanceNameFromDatabasePath(databasePath),
+		Parent:   DatabaseAdminInstancePath(project, instance),
 		BackupId: backupID,
 		Backup: &databasepb.Backup{
 			Database:   databasePath,
@@ -63,23 +63,15 @@ func timestampProto(t time.Time) *pbt.Timestamp {
 }
 
 var (
-	validDBPattern = regexp.MustCompile("^projects/[^/]+/instances/[^/]+/databases/[^/]+$")
+	validDBPattern = regexp.MustCompile("^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<database>[^/]+)$")
 )
+
 // validDatabaseName uses validDBPattern to validate that the database name
-//  conforms to the required pattern.
-func validDatabaseName(db string) error {
+// conforms to the required pattern and extracts the relevant names.
+func validDatabaseName(db string) (project string, instance string, database string, err error) {
 	if matched := validDBPattern.MatchString(db); !matched {
-		return fmt.Errorf("database name %q should conform to pattern %q",
+		return "", "", "", fmt.Errorf("database name %q should conform to pattern %q",
 			db, validDBPattern.String())
 	}
-	return nil
-}
-
-func getInstanceNameFromDatabasePath(databasePath string) (instancePath string) {
-	pathParts := strings.Split(databasePath, "/")
-	projectsLabel := pathParts[0]
-	projectName := pathParts[1]
-	instanceLabel := pathParts[2]
-	instanceName := pathParts[3]
-	return fmt.Sprintf("%s/%s/%s/%s", projectsLabel, projectName, instanceLabel, instanceName)
+	return validDBPattern.ReplaceAllString(db, "${project}"), validDBPattern.ReplaceAllString(db, "${instance}"), validDBPattern.ReplaceAllString(db, "${database}"), nil
 }
