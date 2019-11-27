@@ -27,13 +27,14 @@ import (
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 )
 
-// CreateNewBackup creates a new admin client to connect to a database,
-// and creates a backup called backupID with expiry time of expireTime
-// Required. The name of the instance in which the backup will be
-// created. This must be the same instance that contains the database the
-// backup will be created from. The backup will be stored in the
-// location(s) specified in the instance configuration of this
-// instance.
+// CreateNewBackup creates a backup of the form 
+// projects/<project>/instances/<instance>/backups/<backupID>,
+// with expiry time of expireTime. databasePath must be in the form
+// projects/<project>/instances/<instance>/databases/<database> and the backup will be created
+// in the same instance as the database. expireTime of the backup, with microseconds granularity,
+// must be at least 6 hours and at most 366 days from the time the CreateBackup request is
+// processed. Once the expireTime has passed, the backup is eligible to be automatically deleted
+// by Cloud Spanner to free the resources used by the backup.
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, databasePath string, expireTime time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
 	project, instance, _, err := validDatabaseName(databasePath)
