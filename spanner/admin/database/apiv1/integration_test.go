@@ -24,16 +24,16 @@ Cloud Spanner database instead. You may need to provide -timeout=5m too.
 package database
 
 import (
+	"cloud.google.com/go/spanner/spannertest"
 	"context"
 	"flag"
 	"fmt"
-	"cloud.google.com/go/spanner/spannertest"
 	"github.com/googleapis/gax-go/v2"
-	"testing"
-	"time"
 	"google.golang.org/api/option"
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 	"google.golang.org/grpc"
+	"testing"
+	"time"
 )
 
 var testDBFlag = flag.String("test_db", "", "Fully-qualified database name to test against; empty means use an in-memory fake.")
