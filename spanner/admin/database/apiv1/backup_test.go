@@ -17,19 +17,19 @@ package database
 
 import (
 	"context"
+	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	pbt "github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/googleapis/gax-go/v2"
+	longrunningpb "google.golang.org/genproto/googleapis/longrunning"
+	status "google.golang.org/genproto/googleapis/rpc/status"
+	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
+	"google.golang.org/grpc/codes"
+	gstatus "google.golang.org/grpc/status"
 	"reflect"
 	"testing"
 	"time"
-	"fmt"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/proto"
-	"google.golang.org/grpc/codes"
-	"github.com/googleapis/gax-go/v2"
-	longrunningpb "google.golang.org/genproto/googleapis/longrunning"
-	pbt "github.com/golang/protobuf/ptypes/timestamp"
-	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
-	status "google.golang.org/genproto/googleapis/rpc/status"
-	gstatus "google.golang.org/grpc/status"
 )
 
 func Test_validDatabaseName(t *testing.T) {
@@ -57,11 +57,7 @@ func Test_validDatabaseName(t *testing.T) {
 			args: args{
 				db: "project/instances/databases/foodb",
 			},
-			//for this test we only care about the error
-			// wantProject:  "",
-			// wantInstance: "",
-			// wantDatabase: "",
-			wantErr:      true,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -114,7 +110,6 @@ func Test_timestampProto(t *testing.T) {
 	}
 }
 
-// Keeping this in the format of the generated test for CreateBackup
 func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	var name string = "name3373707"
 	var database string = "database1789464955"
@@ -135,25 +130,25 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 		Done:   true,
 		Result: &longrunningpb.Operation_Response{Response: any},
 	})
-	var formattedDatabasePath string = fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]",database)
+	var formattedDatabasePath string = fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]", database)
 	var backupID string = "backupId1355353272"
 	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
 	if err != nil {
 		t.Fatal(err)
 	}
-	backupArgs:= struct {
+	backupArgs := struct {
 		ctx          context.Context
 		backupID     string
 		databasePath string
 		expireTime   time.Time
 		opts         []gax.CallOption
 	}{
-			ctx:context.Background(),
-			backupID:backupID,
-			databasePath: formattedDatabasePath,
-			expireTime:   time.Now().Add(time.Hour*7),			
+		ctx:          context.Background(),
+		backupID:     backupID,
+		databasePath: formattedDatabasePath,
+		expireTime:   time.Now().Add(time.Hour * 7),
 	}
-	respLRO, err := c.CreateNewBackup(backupArgs.ctx,backupArgs.backupID, backupArgs.databasePath, backupArgs.expireTime)
+	respLRO, err := c.CreateNewBackup(backupArgs.ctx, backupArgs.backupID, backupArgs.databasePath, backupArgs.expireTime)
 	if err != nil {
 		t.Fatal(err)
 	}

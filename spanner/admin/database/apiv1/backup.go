@@ -27,7 +27,7 @@ import (
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 )
 
-// CreateNewBackup creates a backup of the form 
+// CreateNewBackup creates a backup of the form
 // projects/<project>/instances/<instance>/backups/<backupID>,
 // with expiry time of expireTime. databasePath must be in the form
 // projects/<project>/instances/<instance>/databases/<database> and the backup will be created
