@@ -131,7 +131,7 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 		Result: &longrunningpb.Operation_Response{Response: any},
 	})
 	var formattedDatabasePath string = fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]", database)
-	var backupID string = "backupId1355353272"
+	var backupID string = "backupid1355353272"
 	c, err := NewDatabaseAdminClient(context.Background(), clientOpt)
 	if err != nil {
 		t.Fatal(err)
