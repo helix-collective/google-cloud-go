@@ -57,17 +57,11 @@ func makeClient(t *testing.T) (*DatabaseAdminClient, func()) {
 	// Despite the docs, this context is also used for auth,
 	// so it needs to be long-lived.
 	ctx := context.Background()
-
 	if *testDBFlag != "" {
 		t.Logf("Using real Spanner DB %s", *testDBFlag)
-
 		dialOpt := option.WithGRPCDialOption(grpc.WithTimeout(5 * time.Second))
 		epOpt := option.WithEndpoint(endpointURL())
-		// client, err := spanner.NewClient(ctx, *testDBFlag, dialOpt,epOpt)
-		// if err != nil {
-		// 	t.Fatalf("Connecting to %s: %v", *testDBFlag, err)
-		// }
-		adminClient, err := NewDatabaseAdminClient(ctx, dialOpt, epOpt)
+			adminClient, err := NewDatabaseAdminClient(ctx, dialOpt, epOpt)
 		if err != nil {
 			adminClient.Close()
 			t.Fatalf("Connecting DB admin client: %v", err)
@@ -77,7 +71,6 @@ func makeClient(t *testing.T) (*DatabaseAdminClient, func()) {
 
 	// Don't use SPANNER_EMULATOR_HOST because we need the raw connection for
 	// the database admin client anyway.
-
 	t.Logf("Using in-memory fake Spanner DB")
 	srv, err := spannertest.NewServer("localhost:0")
 	if err != nil {
@@ -123,11 +116,36 @@ func TestCreateNewBackup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+
 	_, err = respLRO.Wait(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
+	respMetadata, err:= respLRO.Metadata()
+	if respMetadata.Database != dbName(){
+		t.Fatal(err)
+	}
+	if respMetadata.Progress.ProgressPercent != 100{
+		t.Fatal("Backup has not completed succesfully")
+	}
+	backupName:= fmt.Sprintf("projects/%s/instances/%s/backups/%s", project, instance, backupID)
+	getBackupReq:= &databasepb.GetBackupRequest{}
+	getBackupReq.Name= backupName
+	respCheck, err := adminClient.GetBackup(ctx,getBackupReq)
+	if err != nil {
+		t.Fatal(fmt.Sprintf("Could not retrieve backup %s",backupName),err)
+	}
+	if respCheck.CreateTime == nil{
+		t.Fatal("Backup create time missing")
+	}
+	if respCheck.State != databasepb.Backup_READY{
+		t.Fatal("Backup not ready after request completion")
+	}
+	if respCheck.SizeBytes == 0{
+		t.Fatal("Backup has 0 size ")
+	}
 	deleteBackupArgs := &databasepb.DeleteBackupRequest{}
-	deleteBackupArgs.Name = fmt.Sprintf("projects/%s/instances/%s/backups/%s", project, instance, backupID)
+	deleteBackupArgs.Name = backupName
 	adminClient.DeleteBackup(ctx, deleteBackupArgs)
 }
