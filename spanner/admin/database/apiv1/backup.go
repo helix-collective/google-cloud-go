@@ -18,11 +18,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"time"
+
 	pbt "github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/googleapis/gax-go/v2"
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
-	"regexp"
-	"time"
 )
 
 // CreateNewBackup creates a backup of the form
@@ -34,14 +35,15 @@ import (
 // by Cloud Spanner after its expiration.
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, database string, expires time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
-	project, instance, _, err := validDatabaseName(database)
-	if err != nil {
-		return nil, err
+	validDBPattern := regexp.MustCompile("^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<database>[^/]+)$")
+	if matched:= validDBPattern.MatchString(database) ; !matched {
+		return nil, fmt.Errorf("database name %q should conform to pattern %q",
+		database, validDBPattern.String())
 	}
-	expireTimepb := timestampProto(expires)
+	expireTimepb := &pbt.Timestamp{Seconds: expires.Unix(), Nanos: int32(expires.Nanosecond())}
 	// Create request from parameters.
 	req := &databasepb.CreateBackupRequest{
-		Parent:   fmt.Sprintf("projects/%s/instances/%s", project, instance),
+		Parent:   fmt.Sprintf("projects/%s/instances/%s", validDBPattern.ReplaceAllString(database, "${project}"), validDBPattern.ReplaceAllString(database, "${instance}")),
 		BackupId: backupID,
 		Backup: &databasepb.Backup{
 			Database:   database,
@@ -49,27 +51,4 @@ func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID stri
 		},
 	}
 	return c.CreateBackup(ctx, req)
-}
-
-// timestampProto takes a time.Time and converts it into pbt.Timestamp for
-// calling gRPC APIs.
-func timestampProto(t time.Time) *pbt.Timestamp {
-	return &pbt.Timestamp{
-		Seconds: t.Unix(),
-		Nanos:   int32(t.Nanosecond()),
-	}
-}
-
-var (
-	validDBPattern = regexp.MustCompile("^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<database>[^/]+)$")
-)
-
-// validDatabaseName uses validDBPattern to validate that the database name
-// conforms to the required pattern and extracts the relevant names.
-func validDatabaseName(db string) (project string, instance string, database string, err error) {
-	if matched := validDBPattern.MatchString(db); !matched {
-		return "", "", "", fmt.Errorf("database name %q should conform to pattern %q",
-			db, validDBPattern.String())
-	}
-	return validDBPattern.ReplaceAllString(db, "${project}"), validDBPattern.ReplaceAllString(db, "${instance}"), validDBPattern.ReplaceAllString(db, "${database}"), nil
 }
