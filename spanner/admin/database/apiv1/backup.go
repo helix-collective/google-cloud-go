@@ -1,5 +1,5 @@
 /*
-Copyright 2017 Google LLC
+Copyright 2019 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,36 +18,33 @@ package database
 import (
 	"context"
 	"fmt"
+	pbt "github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/googleapis/gax-go/v2"
+	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 	"regexp"
 	"time"
-
-	"github.com/googleapis/gax-go/v2"
-
-	pbt "github.com/golang/protobuf/ptypes/timestamp"
-	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 )
 
 // CreateNewBackup creates a backup of the form
 // projects/<project>/instances/<instance>/backups/<backupID>,
-// with expiry time of expireTime. databasePath must be in the form
-// projects/<project>/instances/<instance>/databases/<database> and the backup will be created
-// in the same instance as the database. expireTime of the backup, with microseconds granularity,
-// must be at least 6 hours and at most 366 days from the time the CreateBackup request is
-// processed. Once the expireTime has passed, the backup is eligible to be automatically deleted
-// by Cloud Spanner to free the resources used by the backup.
-func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, databasePath string, expireTime time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
+// with expiry time of expires.
+// A valid database name has the form projects/PROJECT_ID/instances/INSTANCE_ID/databases/DATABASE_ID.
+// expires is the time the backup will expire. It is respected to
+// microsecond granularity. The backup will be automatically deleted
+// by Cloud Spanner after its expiration.
+func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, database string, expires time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
-	project, instance, _, err := validDatabaseName(databasePath)
+	project, instance, _, err := validDatabaseName(database)
 	if err != nil {
 		return nil, err
 	}
-	expireTimepb := timestampProto(expireTime)
+	expireTimepb := timestampProto(expires)
 	// Create request from parameters.
 	req := &databasepb.CreateBackupRequest{
 		Parent:   fmt.Sprintf("projects/%s/instances/%s", project, instance),
 		BackupId: backupID,
 		Backup: &databasepb.Backup{
-			Database:   databasePath,
+			Database:   database,
 			ExpireTime: expireTimepb,
 		},
 	}
