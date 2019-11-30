@@ -36,9 +36,9 @@ import (
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, database string, expires time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
 	validDBPattern := regexp.MustCompile("^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<database>[^/]+)$")
-	if matched:= validDBPattern.MatchString(database) ; !matched {
+	if matched := validDBPattern.MatchString(database); !matched {
 		return nil, fmt.Errorf("database name %q should conform to pattern %q",
-		database, validDBPattern.String())
+			database, validDBPattern.String())
 	}
 	expireTimepb := &pbt.Timestamp{Seconds: expires.Unix(), Nanos: int32(expires.Nanosecond())}
 	// Create request from parameters.
