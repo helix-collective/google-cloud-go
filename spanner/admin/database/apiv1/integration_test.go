@@ -285,7 +285,7 @@ func makeClient(ctx context.Context, t *testing.T) (*DatabaseAdminClient, func()
 	}
 }
 
-func TestCreateNewBackup(t *testing.T) {
+func TestIntegrationCreateNewBackup(t *testing.T) {
 	ctx := context.Background()
 	instanceCleanup := initIntegrationTests()
 	adminClient, cleanup := makeClient(ctx, t)
