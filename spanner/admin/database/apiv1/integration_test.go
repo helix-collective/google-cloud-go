@@ -218,6 +218,7 @@ func prepareTestDatabase(ctx context.Context, t *testing.T, statements []string)
 	dbPath := fmt.Sprintf("projects/%v/instances/%v/databases/%v", testProjectID, testInstanceName, dbName)
 	if dbName == "" {
 		dbName= "ash_test123"
+		//TODO use this instead of hardcoded DB
 		// dbNameSpace.New()
 		dbPath = fmt.Sprintf("projects/%v/instances/%v/databases/%v", testProjectID, testInstanceName, dbName)
 		op, err := databaseAdmin.CreateDatabase(ctx, &adminpb.CreateDatabaseRequest{
