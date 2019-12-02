@@ -292,6 +292,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	adminClient, cleanup := makeClient(ctx, t)
 	backupID := uid.NewSpace("backupid", &uid.Options{Sep: '_', Short: true}).New()
 	backupName := fmt.Sprintf("projects/%s/instances/%s/backups/%s", testProjectID, testInstanceName, backupID)
+	fullDatabaseName := fmt.Sprintf("projects/%s/instances/%s/databases/%s", testProjectID, testInstanceName, testDatabaseName)
 	deleteBackupArgs := &databasepb.DeleteBackupRequest{}
 	deleteBackupArgs.Name = backupName
 	expires := time.Now().Add(time.Hour * 7)
@@ -305,7 +306,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 		t.Fatal(err)
 	}
 	respMetadata, err := respLRO.Metadata()
-	if respMetadata.Database != testDatabaseName {
+	if respMetadata.Database != fullDatabaseName {
 		adminClient.DeleteBackup(ctx, deleteBackupArgs)
 		t.Fatal(err)
 	}
