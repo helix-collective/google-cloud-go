@@ -117,12 +117,11 @@ func initIntegrationTests() (cleanup func()) {
 	var err error
 
 	// Check if a specific endpoint is set for the integration test
-	if testEndpoint == "" {
-		testEndpoint = "spanner.googleapis.com:443"
-	} else {
+	opts := append(grpcHeaderChecker.CallOptions(), option.WithTokenSource(ts))
+	if testEndpoint != "" {
 		log.Printf("Running integration test with endpoint %s", testEndpoint)
+		opts = append(opts, option.WithEndpoint(testEndpoint))
 	}
-	opts := append(grpcHeaderChecker.CallOptions(), option.WithTokenSource(ts), option.WithEndpoint(testEndpoint))
 
 	// Create InstanceAdmin and DatabaseAdmin clients.
 	instanceAdmin, err = instance.NewInstanceAdminClient(ctx, opts...)
