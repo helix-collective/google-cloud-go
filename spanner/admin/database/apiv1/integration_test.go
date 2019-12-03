@@ -270,7 +270,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	}
 	defer func() {
 		if err := databaseAdmin.DeleteBackup(ctx, &databasepb.DeleteBackupRequest{Name: backupName}); err != nil {
-			log.Printf("Error deleting backup: %v", err)
+			log.Printf("failed to delete backup %s (error %v), might need a manual removal", backupName, err)
 		}
 	}()
 
@@ -280,25 +280,25 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	}
 	respMetadata, err := respLRO.Metadata()
 	if err != nil {
-		t.Fatalf("Error getting metadata from backup operation: %v", err)
+		t.Fatalf("backup response metadata, got error %v, want nil", err)
 	}
 	if respMetadata.Database != testDatabaseName {
-		t.Fatalf("Backup has wrong database name, expected %s but got %s", testDatabaseName, respMetadata.Database)
+		t.Fatalf("backup database name, got %s, want %s", respMetadata.Database, testDatabaseName)
 	}
 	if respMetadata.Progress.ProgressPercent != 100 {
-		t.Fatal("Backup has not completed successfully")
+		t.Fatalf("backup progress percent, got %d, want 100", respMetadata.Progress.ProgressPercent)
 	}
 	respCheck, err := databaseAdmin.GetBackup(ctx, &databasepb.GetBackupRequest{ Name: backupName })
 	if err != nil {
-		t.Fatalf("Could not retrieve backup %s: %v", backupName, err)
+		t.Fatalf("backup metadata, got error %v, want nil", err)
 	}
 	if respCheck.CreateTime == nil {
-		t.Fatal("Backup create time missing")
+		t.Fatal("backup create time, got nil, want non-nil")
 	}
 	if respCheck.State != databasepb.Backup_READY {
-		t.Fatal("Backup not ready after request completion")
+		t.Fatalf("backup state, got %v, want %v", respCheck.State, databasepb.Backup_READY)
 	}
 	if respCheck.SizeBytes == 0 {
-		t.Fatal("Backup has 0 size")
+		t.Fatalf("backup size, got %d, want non-zero", respCheck.SizeBytes)
 	}
 }
