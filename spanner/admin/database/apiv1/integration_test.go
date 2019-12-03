@@ -52,7 +52,7 @@ var (
 
 	dbNameSpace       = uid.NewSpace("gotest", &uid.Options{Sep: '_', Short: true})
 	instanceNameSpace = uid.NewSpace("gotest", &uid.Options{Sep: '-', Short: true})
-	backupNameSpace   = uid.NewSpace("backupid", &uid.Options{Sep: '_', Short: true})
+	backupNameSpace   = uid.NewSpace("gotest", &uid.Options{Sep: '_', Short: true})
 
 	databaseAdmin *DatabaseAdminClient
 	instanceAdmin *instance.InstanceAdminClient
