@@ -137,7 +137,7 @@ func initIntegrationTests() (cleanup func()) {
 	// tear it down after the test.
 	createInstanceForTest := testInstanceName == ""
 	if createInstanceForTest {
-		testInstanceName    = instanceNameSpace.New()
+		testInstanceName = instanceNameSpace.New()
 
 		// Get the list of supported instance configs for the project that is used
 		// for the integration tests. The supported instance configs can differ per
