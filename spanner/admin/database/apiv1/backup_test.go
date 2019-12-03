@@ -18,6 +18,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"testing"
 	"time"
 
@@ -34,6 +35,21 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	name := "name3373707"
 	database := "database1789464955"
 	sizeBytes := int64(1796325715123)
+	formattedInstancePath := fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
+	formattedDatabasePath := fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]", database)
+	backupID := "backupid1355353272"
+	expires := time.Unix(221688000, 500)
+	expectedRequest := &databasepb.CreateBackupRequest{
+		Parent:    formattedInstancePath,
+		BackupId:  backupID,
+		Backup:    &databasepb.Backup{
+			Database:   formattedDatabasePath,
+			ExpireTime: &timestamp.Timestamp{
+				Seconds: 221688000,
+				Nanos:   500,
+			},
+		},
+	}
 	expectedResponse := &databasepb.Backup{
 		Name:      name,
 		Database:  database,
@@ -41,9 +57,7 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	}
 	mockDatabaseAdmin.err = nil
 	mockDatabaseAdmin.reqs = nil
-	formattedDatabasePath := fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]", database)
-	backupID := "backupid1355353272"
-	expires := time.Now().Add(time.Hour * 7)
+
 	ctx := context.Background()
 	any, err := ptypes.MarshalAny(expectedResponse)
 	if err != nil {
@@ -66,11 +80,12 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	//TODO add test for expire time conversion to pb
+	if want, got := expectedRequest, mockDatabaseAdmin.reqs[0]; !proto.Equal(want, got) {
+		t.Errorf("wrong request %q, want %q", got, want)
+	}
 	if want, got := expectedResponse, resp; !proto.Equal(want, got) {
 		t.Errorf("wrong response %q, want %q)", got, want)
 	}
-
 }
 
 func TestDatabaseAdminCreateNewBackupError(t *testing.T) {
