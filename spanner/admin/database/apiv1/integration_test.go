@@ -96,7 +96,6 @@ var grpcHeaderChecker = testutil.DefaultHeadersEnforcer()
 func initIntegrationTests() (cleanup func()) {
 	ctx := context.Background()
 	flag.Parse() // Needed for testing.Short().
-
 	noop := func() {}
 
 	if testing.Short() {
@@ -177,10 +176,7 @@ func initIntegrationTests() (cleanup func()) {
 
 	return func() {
 		if createInstanceForTest {
-			err := instanceAdmin.DeleteInstance(ctx, &instancepb.DeleteInstanceRequest{
-				Name: testInstanceName,
-			})
-			if err != nil {
+			if err := instanceAdmin.DeleteInstance(ctx, &instancepb.DeleteInstanceRequest{Name: testInstanceName}); err != nil {
 				log.Printf("failed to drop instance %s (error %v), might need a manual removal",
 					testInstanceName, err)
 			}
@@ -273,11 +269,8 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		deleteBackupArgs := &databasepb.DeleteBackupRequest{}
-		deleteBackupArgs.Name = backupName
-		err := databaseAdmin.DeleteBackup(ctx, deleteBackupArgs)
-		if err != nil {
-			t.Logf("Error deleting backup: %v", err)
+		if err := databaseAdmin.DeleteBackup(ctx, &databasepb.DeleteBackupRequest{Name: backupName}); err != nil {
+			log.Printf("Error deleting backup: %v", err)
 		}
 	}()
 
@@ -295,9 +288,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	if respMetadata.Progress.ProgressPercent != 100 {
 		t.Fatal("Backup has not completed successfully")
 	}
-	getBackupReq := &databasepb.GetBackupRequest{}
-	getBackupReq.Name = backupName
-	respCheck, err := databaseAdmin.GetBackup(ctx, getBackupReq)
+	respCheck, err := databaseAdmin.GetBackup(ctx, &databasepb.GetBackupRequest{ Name: backupName })
 	if err != nil {
 		t.Fatalf("Could not retrieve backup %s: %v", backupName, err)
 	}
