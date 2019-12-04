@@ -18,12 +18,12 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"testing"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	longrunningpb "google.golang.org/genproto/googleapis/longrunning"
 	status "google.golang.org/genproto/googleapis/rpc/status"
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
