@@ -50,5 +50,5 @@ func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID stri
 			ExpireTime: expireTimepb,
 		},
 	}
-	return c.CreateBackup(ctx, req)
+	return c.CreateBackup(ctx, req, opts...)
 }
