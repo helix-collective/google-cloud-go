@@ -40,10 +40,10 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	backupID := "backupid1355353272"
 	expires := time.Unix(221688000, 500)
 	expectedRequest := &databasepb.CreateBackupRequest{
-		Parent:    formattedInstancePath,
-		BackupId:  backupID,
-		Backup:    &databasepb.Backup{
-			Database:   formattedDatabasePath,
+		Parent:   formattedInstancePath,
+		BackupId: backupID,
+		Backup: &databasepb.Backup{
+			Database: formattedDatabasePath,
 			ExpireTime: &timestamp.Timestamp{
 				Seconds: 221688000,
 				Nanos:   500,

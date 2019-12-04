@@ -288,7 +288,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	if respMetadata.Progress.ProgressPercent != 100 {
 		t.Fatalf("backup progress percent, got %d, want 100", respMetadata.Progress.ProgressPercent)
 	}
-	respCheck, err := databaseAdmin.GetBackup(ctx, &databasepb.GetBackupRequest{ Name: backupName })
+	respCheck, err := databaseAdmin.GetBackup(ctx, &databasepb.GetBackupRequest{Name: backupName})
 	if err != nil {
 		t.Fatalf("backup metadata, got error %v, want nil", err)
 	}
