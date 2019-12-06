@@ -28,7 +28,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 	"time"
@@ -61,23 +60,23 @@ var (
 
 var grpcHeaderChecker = testutil.DefaultHeadersEnforcer()
 
-func initIntegrationTests() (cleanup func()) {
+func initIntegrationTests(t *testing.T) (cleanup func()) {
 	ctx := context.Background()
 	flag.Parse() // Needed for testing.Short().
 
 	if testing.Short() {
-		log.Println("Integration tests skipped in -short mode.")
+		t.Log("Integration tests skipped in -short mode.")
 		return func() {}
 	}
 
 	if testProjectID == "" {
-		log.Println("Integration tests skipped: GCLOUD_TESTS_GOLANG_PROJECT_ID is missing")
+		t.Log("Integration tests skipped: GCLOUD_TESTS_GOLANG_PROJECT_ID is missing")
 		return func() {}
 	}
 
 	ts := testutil.TokenSource(ctx, spanner.AdminScope, spanner.Scope)
 	if ts == nil {
-		log.Printf("Integration test skipped: cannot get service account credential from environment variable %v", "GCLOUD_TESTS_GOLANG_KEY")
+		t.Logf("Integration test skipped: cannot get service account credential from environment variable %v", "GCLOUD_TESTS_GOLANG_KEY")
 		return func() {}
 	}
 	var err error
@@ -85,18 +84,18 @@ func initIntegrationTests() (cleanup func()) {
 	// Check if a specific endpoint is set for the integration test
 	opts := append(grpcHeaderChecker.CallOptions(), option.WithTokenSource(ts))
 	if testEndpoint != "" {
-		log.Printf("Running integration test with endpoint %s", testEndpoint)
+		t.Logf("Running integration test with endpoint %s", testEndpoint)
 		opts = append(opts, option.WithEndpoint(testEndpoint))
 	}
 
 	// Create InstanceAdmin and DatabaseAdmin clients.
 	instanceAdmin, err = instance.NewInstanceAdminClient(ctx, opts...)
 	if err != nil {
-		log.Fatalf("cannot create instance databaseAdmin client: %v", err)
+		t.Fatalf("cannot create instance databaseAdmin client: %v", err)
 	}
 	databaseAdmin, err = NewDatabaseAdminClient(ctx, opts...)
 	if err != nil {
-		log.Fatalf("cannot create databaseAdmin client: %v", err)
+		t.Fatalf("cannot create databaseAdmin client: %v", err)
 	}
 
 	// If a specific instance was selected for testing, use that.  Otherwise create a new instance for testing and
@@ -115,7 +114,7 @@ func initIntegrationTests() (cleanup func()) {
 		})
 		config, err := configIterator.Next()
 		if err != nil {
-			log.Fatalf("Cannot get any instance configurations.\nPlease make sure the Cloud Spanner API is enabled for the test project.\nGet error: %v", err)
+			t.Fatalf("Cannot get any instance configurations.\nPlease make sure the Cloud Spanner API is enabled for the test project.\nGet error: %v", err)
 		}
 
 		// Create a test instance to use for this test run.
@@ -129,26 +128,26 @@ func initIntegrationTests() (cleanup func()) {
 			},
 		})
 		if err != nil {
-			log.Fatalf("could not create instance with id %s: %v", fmt.Sprintf("projects/%s/instances/%s", testProjectID, testInstanceName), err)
+			t.Fatalf("could not create instance with id %s: %v", fmt.Sprintf("projects/%s/instances/%s", testProjectID, testInstanceName), err)
 		}
 		// Wait for the instance creation to finish.
 		i, err := op.Wait(ctx)
 		if err != nil {
-			log.Fatalf("waiting for instance creation to finish failed: %v", err)
+			t.Fatalf("waiting for instance creation to finish failed: %v", err)
 		}
 		if i.State != instancepb.Instance_READY {
-			log.Printf("instance state is not READY, it might be that the test instance will cause problems during tests. Got state %v\n", i.State)
+			t.Logf("instance state is not READY, it might be that the test instance will cause problems during tests. Got state %v\n", i.State)
 		}
 	}
 
 	return func() {
 		if createInstanceForTest {
 			if err := instanceAdmin.DeleteInstance(ctx, &instancepb.DeleteInstanceRequest{Name: testInstanceName}); err != nil {
-				log.Printf("failed to drop instance %s (error %v), might need a manual removal",
+				t.Logf("failed to drop instance %s (error %v), might need a manual removal",
 					testInstanceName, err)
 			}
 			// Delete other test instances that may be lingering around.
-			cleanupInstances()
+			cleanupInstances(t)
 		}
 
 		databaseAdmin.Close()
@@ -219,7 +218,7 @@ func prepareIntegrationTest(ctx context.Context, t *testing.T) (string, func()) 
 	}
 }
 
-func cleanupInstances() {
+func cleanupInstances(t *testing.T) {
 	if instanceAdmin == nil {
 		// Integration tests skipped.
 		return
@@ -242,10 +241,10 @@ func cleanupInstances() {
 			panic(err)
 		}
 		if instanceNameSpace.Older(inst.Name, expireAge) {
-			log.Printf("Deleting instance %s", inst.Name)
+			t.Logf("Deleting instance %s", inst.Name)
 
 			if err := instanceAdmin.DeleteInstance(ctx, &instancepb.DeleteInstanceRequest{Name: inst.Name}); err != nil {
-				log.Printf("failed to delete instance %s (error %v), might need a manual removal",
+				t.Logf("failed to delete instance %s (error %v), might need a manual removal",
 					inst.Name, err)
 			}
 		}
@@ -254,7 +253,7 @@ func cleanupInstances() {
 
 func TestIntegrationCreateNewBackup(t *testing.T) {
 	ctx := context.Background()
-	instanceCleanup := initIntegrationTests()
+	instanceCleanup := initIntegrationTests(t)
 	defer instanceCleanup()
 	if databaseAdmin == nil {
 		t.Skip("Integration tests skipped")
@@ -272,7 +271,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	}
 	defer func() {
 		if err := databaseAdmin.DeleteBackup(ctx, &databasepb.DeleteBackupRequest{Name: backupName}); err != nil {
-			log.Printf("failed to delete backup %s (error %v), might need a manual removal", backupName, err)
+			t.Logf("failed to delete backup %s (error %v), might need a manual removal", backupName, err)
 		}
 	}()
 
