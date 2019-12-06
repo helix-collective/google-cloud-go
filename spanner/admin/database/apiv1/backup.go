@@ -26,13 +26,17 @@ import (
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
 )
 
-// CreateNewBackup creates a backup of the form
-// projects/<project>/instances/<instance>/backups/<backupID>,
-// with expiry time of expires.
-// A valid database name has the form projects/PROJECT_ID/instances/INSTANCE_ID/databases/DATABASE_ID.
+// CreateNewBackup creates a backup of the given database. It will be stored
+// as projects/<project>/instances/<instance>/backups/<backupID>. The
+// backup will be automatically deleted by Cloud Spanner after its expiration.
+//
+// backupID must be unique across an instance.
+//
 // expires is the time the backup will expire. It is respected to
-// microsecond granularity. The backup will be automatically deleted
-// by Cloud Spanner after its expiration.
+// microsecond granularity.
+//
+// The database must have the form
+// projects/<project>/instances/<instance>/databases/<database>.
 func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID string, database string, expires time.Time, opts ...gax.CallOption) (*CreateBackupOperation, error) {
 	// Validate database path.
 	validDBPattern := regexp.MustCompile("^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/databases/(?P<database>[^/]+)$")
