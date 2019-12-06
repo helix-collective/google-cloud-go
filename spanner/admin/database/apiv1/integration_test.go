@@ -264,7 +264,8 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 
 	backupID := backupIdSpace.New()
 	backupName := fmt.Sprintf("projects/%s/instances/%s/backups/%s", testProjectID, testInstanceName, backupID)
-	expires := time.Now().Add(time.Hour)
+	// Minimum expiry time is 6 hours
+	expires := time.Now().Add(time.Hour * 7)
 	respLRO, err := databaseAdmin.CreateNewBackup(ctx, backupID, testDatabaseName, expires)
 	if err != nil {
 		t.Fatal(err)

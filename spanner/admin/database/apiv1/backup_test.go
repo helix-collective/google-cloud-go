@@ -102,7 +102,8 @@ func TestDatabaseAdminCreateNewBackupError(t *testing.T) {
 	backupName := "some-backup"
 	instancePath := "projects/some-project/instances/some-instance"
 	databasePath := instancePath + "/databases/" + databaseName
-	expires := time.Now().Add(time.Hour)
+	// Minimum expiry time is 6 hours
+	expires := time.Now().Add(time.Hour * 7)
 	ctx := context.Background()
 	c, err := NewDatabaseAdminClient(ctx, clientOpt)
 	if err != nil {
