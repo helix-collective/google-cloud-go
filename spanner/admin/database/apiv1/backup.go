@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	pbt "github.com/golang/protobuf/ptypes/timestamp"
@@ -45,9 +46,10 @@ func (c *DatabaseAdminClient) CreateNewBackup(ctx context.Context, backupID stri
 			database, validDBPattern.String())
 	}
 	expireTimepb := &pbt.Timestamp{Seconds: expires.Unix(), Nanos: int32(expires.Nanosecond())}
+	databasePathFragments := strings.Split(database, "/")
 	// Create request from parameters.
 	req := &databasepb.CreateBackupRequest{
-		Parent:   fmt.Sprintf("projects/%s/instances/%s", validDBPattern.ReplaceAllString(database, "${project}"), validDBPattern.ReplaceAllString(database, "${instance}")),
+		Parent:   fmt.Sprintf("projects/%s/instances/%s", databasePathFragments[1], databasePathFragments[3]),
 		BackupId: backupID,
 		Backup: &databasepb.Backup{
 			Database:   database,
