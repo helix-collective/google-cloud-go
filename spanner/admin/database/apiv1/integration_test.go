@@ -256,6 +256,9 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	ctx := context.Background()
 	instanceCleanup := initIntegrationTests()
 	defer instanceCleanup()
+	if databaseAdmin == nil {
+		t.Skip("Integration tests skipped")
+	}
 	testDatabaseName, cleanup := prepareIntegrationTest(ctx, t)
 	defer cleanup()
 
