@@ -17,7 +17,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -32,18 +31,16 @@ import (
 )
 
 func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
-	name := "name3373707"
-	database := "database1789464955"
-	sizeBytes := int64(1796325715123)
-	formattedInstancePath := fmt.Sprintf("projects/%s/instances/%s", "[PROJECT]", "[INSTANCE]")
-	formattedDatabasePath := fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]", database)
-	backupID := "backupid1355353272"
-	expires := time.Unix(221688000, 500)
+	backupName := "some-backup"
+	databaseName := "some-database"
+	instancePath := "projects/some-project/instances/some-instance"
+	databasePath := instancePath + "/databases/" + databaseName
+	backupPath := instancePath + "/backups/" + backupName
 	expectedRequest := &databasepb.CreateBackupRequest{
-		Parent:   formattedInstancePath,
-		BackupId: backupID,
+		Parent:   instancePath,
+		BackupId: backupName,
 		Backup: &databasepb.Backup{
-			Database: formattedDatabasePath,
+			Database: databasePath,
 			ExpireTime: &timestamp.Timestamp{
 				Seconds: 221688000,
 				Nanos:   500,
@@ -51,9 +48,9 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 		},
 	}
 	expectedResponse := &databasepb.Backup{
-		Name:      name,
-		Database:  database,
-		SizeBytes: sizeBytes,
+		Name:      backupPath,
+		Database:  databasePath,
+		SizeBytes: 1796325715123,
 	}
 	mockDatabaseAdmin.err = nil
 	mockDatabaseAdmin.reqs = nil
@@ -72,7 +69,7 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	respLRO, err := c.CreateNewBackup(ctx, backupID, formattedDatabasePath, expires)
+	respLRO, err := c.CreateNewBackup(ctx, backupName, databasePath, time.Unix(221688000, 500))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,16 +98,18 @@ func TestDatabaseAdminCreateNewBackupError(t *testing.T) {
 			},
 		},
 	})
-	formattedDatabasePath := fmt.Sprintf("projects/%s/instances/%s/databases/%s", "[PROJECT]", "[INSTANCE]", "database1789464955")
-	backupID := "backupid1355353272"
-	expires := time.Now().Add(time.Hour * 7)
+	databaseName := "some-database"
+	backupName := "some-backup"
+	instancePath := "projects/some-project/instances/some-instance"
+	databasePath := instancePath + "/databases/" + databaseName
+	expires := time.Now().Add(time.Hour)
 	ctx := context.Background()
 	c, err := NewDatabaseAdminClient(ctx, clientOpt)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	respLRO, err := c.CreateNewBackup(ctx, backupID, formattedDatabasePath, expires)
+	respLRO, err := c.CreateNewBackup(ctx, backupName, databasePath, expires)
 	if err != nil {
 		t.Fatal(err)
 	}

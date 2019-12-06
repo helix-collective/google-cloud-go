@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+package database
+
 /*
 This file holds tests for the in-memory fake for comparing it against a real Cloud Spanner.
 
@@ -21,7 +23,6 @@ By default it uses the Spanner client against the in-memory fake; set the
 -test_db flag to "projects/P/instances/I/databases/D" to make it use a real
 Cloud Spanner database instead. You may need to provide -timeout=5m too.
 */
-package database
 
 import (
 	"context"
@@ -52,43 +53,10 @@ var (
 
 	dbNameSpace       = uid.NewSpace("gotest", &uid.Options{Sep: '_', Short: true})
 	instanceNameSpace = uid.NewSpace("gotest", &uid.Options{Sep: '-', Short: true})
-	backupNameSpace   = uid.NewSpace("gotest", &uid.Options{Sep: '_', Short: true})
+	backupIdSpace   = uid.NewSpace("gotest", &uid.Options{Sep: '_', Short: true})
 
 	databaseAdmin *DatabaseAdminClient
 	instanceAdmin *instance.InstanceAdminClient
-
-	singerDBStatements = []string{
-		`CREATE TABLE Singers (
-				SingerId	INT64 NOT NULL,
-				FirstName	STRING(1024),
-				LastName	STRING(1024),
-				SingerInfo	BYTES(MAX)
-			) PRIMARY KEY (SingerId)`,
-		`CREATE INDEX SingerByName ON Singers(FirstName, LastName)`,
-		`CREATE TABLE Accounts (
-				AccountId	INT64 NOT NULL,
-				Nickname	STRING(100),
-				Balance		INT64 NOT NULL,
-			) PRIMARY KEY (AccountId)`,
-		`CREATE INDEX AccountByNickname ON Accounts(Nickname) STORING (Balance)`,
-		`CREATE TABLE Types (
-				RowID		INT64 NOT NULL,
-				String		STRING(MAX),
-				StringArray	ARRAY<STRING(MAX)>,
-				Bytes		BYTES(MAX),
-				BytesArray	ARRAY<BYTES(MAX)>,
-				Int64a		INT64,
-				Int64Array	ARRAY<INT64>,
-				Bool		BOOL,
-				BoolArray	ARRAY<BOOL>,
-				Float64		FLOAT64,
-				Float64Array	ARRAY<FLOAT64>,
-				Date		DATE,
-				DateArray	ARRAY<DATE>,
-				Timestamp	TIMESTAMP,
-				TimestampArray	ARRAY<TIMESTAMP>,
-			) PRIMARY KEY (RowID)`,
-	}
 )
 
 var grpcHeaderChecker = testutil.DefaultHeadersEnforcer()
@@ -96,22 +64,21 @@ var grpcHeaderChecker = testutil.DefaultHeadersEnforcer()
 func initIntegrationTests() (cleanup func()) {
 	ctx := context.Background()
 	flag.Parse() // Needed for testing.Short().
-	noop := func() {}
 
 	if testing.Short() {
 		log.Println("Integration tests skipped in -short mode.")
-		return noop
+		return func() {}
 	}
 
 	if testProjectID == "" {
 		log.Println("Integration tests skipped: GCLOUD_TESTS_GOLANG_PROJECT_ID is missing")
-		return noop
+		return func() {}
 	}
 
 	ts := testutil.TokenSource(ctx, spanner.AdminScope, spanner.Scope)
 	if ts == nil {
 		log.Printf("Integration test skipped: cannot get service account credential from environment variable %v", "GCLOUD_TESTS_GOLANG_KEY")
-		return noop
+		return func() {}
 	}
 	var err error
 
@@ -202,7 +169,38 @@ func prepareIntegrationTest(ctx context.Context, t *testing.T) (string, func()) 
 	op, err := databaseAdmin.CreateDatabase(ctx, &adminpb.CreateDatabaseRequest{
 		Parent:          fmt.Sprintf("projects/%v/instances/%v", testProjectID, testInstanceName),
 		CreateStatement: "CREATE DATABASE " + dbName,
-		ExtraStatements: singerDBStatements,
+		ExtraStatements: []string{
+			`CREATE TABLE Singers (
+				SingerId	INT64 NOT NULL,
+				FirstName	STRING(1024),
+				LastName	STRING(1024),
+				SingerInfo	BYTES(MAX)
+			) PRIMARY KEY (SingerId)`,
+			`CREATE INDEX SingerByName ON Singers(FirstName, LastName)`,
+			`CREATE TABLE Accounts (
+				AccountId	INT64 NOT NULL,
+				Nickname	STRING(100),
+				Balance		INT64 NOT NULL,
+			) PRIMARY KEY (AccountId)`,
+			`CREATE INDEX AccountByNickname ON Accounts(Nickname) STORING (Balance)`,
+			`CREATE TABLE Types (
+				RowID		INT64 NOT NULL,
+				String		STRING(MAX),
+				StringArray	ARRAY<STRING(MAX)>,
+				Bytes		BYTES(MAX),
+				BytesArray	ARRAY<BYTES(MAX)>,
+				Int64a		INT64,
+				Int64Array	ARRAY<INT64>,
+				Bool		BOOL,
+				BoolArray	ARRAY<BOOL>,
+				Float64		FLOAT64,
+				Float64Array	ARRAY<FLOAT64>,
+				Date		DATE,
+				DateArray	ARRAY<DATE>,
+				Timestamp	TIMESTAMP,
+				TimestampArray	ARRAY<TIMESTAMP>,
+			) PRIMARY KEY (RowID)`,
+		},
 	})
 	if err != nil {
 		t.Fatalf("cannot create testing DB %v: %v", dbPath, err)
@@ -261,9 +259,9 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	testDatabaseName, cleanup := prepareIntegrationTest(ctx, t)
 	defer cleanup()
 
-	backupID := backupNameSpace.New()
+	backupID := backupIdSpace.New()
 	backupName := fmt.Sprintf("projects/%s/instances/%s/backups/%s", testProjectID, testInstanceName, backupID)
-	expires := time.Now().Add(time.Hour * 7)
+	expires := time.Now().Add(time.Hour)
 	respLRO, err := databaseAdmin.CreateNewBackup(ctx, backupID, testDatabaseName, expires)
 	if err != nil {
 		t.Fatal(err)
