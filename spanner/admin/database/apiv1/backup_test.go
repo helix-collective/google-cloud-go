@@ -30,7 +30,7 @@ import (
 	gstatus "google.golang.org/grpc/status"
 )
 
-func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
+func TestDatabaseAdminClient_StartBackupOperation(t *testing.T) {
 	backupName := "some-backup"
 	databaseName := "some-database"
 	instancePath := "projects/some-project/instances/some-instance"
@@ -69,7 +69,7 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	respLRO, err := c.CreateNewBackup(ctx, backupName, databasePath, time.Unix(221688000, 500))
+	respLRO, err := c.StartBackupOperation(ctx, backupName, databasePath, time.Unix(221688000, 500))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestDatabaseAdminClient_CreateNewBackup(t *testing.T) {
 	}
 }
 
-func TestDatabaseAdminCreateNewBackupError(t *testing.T) {
+func TestDatabaseAdminStartBackupOperationError(t *testing.T) {
 	wantErr := codes.PermissionDenied
 	mockDatabaseAdmin.err = nil
 	mockDatabaseAdmin.resps = append(mockDatabaseAdmin.resps[:0], &longrunningpb.Operation{
@@ -110,7 +110,7 @@ func TestDatabaseAdminCreateNewBackupError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	respLRO, err := c.CreateNewBackup(ctx, backupName, databasePath, expires)
+	respLRO, err := c.StartBackupOperation(ctx, backupName, databasePath, expires)
 	if err != nil {
 		t.Fatal(err)
 	}

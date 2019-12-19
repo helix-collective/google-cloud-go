@@ -251,7 +251,7 @@ func cleanupInstances(t *testing.T) {
 	}
 }
 
-func TestIntegrationCreateNewBackup(t *testing.T) {
+func TestIntegrationStartBackupOperation(t *testing.T) {
 	ctx := context.Background()
 	instanceCleanup := initIntegrationTests(t)
 	defer instanceCleanup()
@@ -265,7 +265,7 @@ func TestIntegrationCreateNewBackup(t *testing.T) {
 	backupName := fmt.Sprintf("projects/%s/instances/%s/backups/%s", testProjectID, testInstanceName, backupID)
 	// Minimum expiry time is 6 hours
 	expires := time.Now().Add(time.Hour * 7)
-	respLRO, err := databaseAdmin.CreateNewBackup(ctx, backupID, testDatabaseName, expires)
+	respLRO, err := databaseAdmin.StartBackupOperation(ctx, backupID, testDatabaseName, expires)
 	if err != nil {
 		t.Fatal(err)
 	}
